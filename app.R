@@ -16,7 +16,7 @@ sapply(rmdfiles, knit, quiet = T)
 
 ui <- shinyUI(
   fluidPage(
-    includeMarkdown("SDapp_tabset.md")
+    includeMarkdown("SSDapp_tabset.md")
   )
 )
 server <- function(input, output) { }
