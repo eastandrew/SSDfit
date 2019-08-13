@@ -10,9 +10,11 @@
 
 library(shiny)
 library(knitr)
+library(rmarkdown)
+
 
 rmdfiles <- c("SSDapp_tabset.Rmd")
-sapply(rmdfiles, rmarkdown::run, quiet = T)
+sapply(rmdfiles, run)
 
 ui <- shinyUI(
   fluidPage(
