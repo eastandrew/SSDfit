@@ -1,2 +1,2 @@
 
-run("SSDapp_tabset.Rmd")
+rmarkdown::run("SSDapp_tabset.Rmd")
