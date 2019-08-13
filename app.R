@@ -12,15 +12,15 @@ library(shiny)
 library(knitr)
 library(rmarkdown)
 
+run("SSDapp_tabset.Rmd")
+#rmdfiles <- c("SSDapp_tabset.Rmd")
+#sapply(rmdfiles, run)
 
-rmdfiles <- c("SSDapp_tabset.Rmd")
-sapply(rmdfiles, run)
-
-ui <- shinyUI(
-  fluidPage(
-    includeMarkdown("SSDapp_tabset.md")
-  )
-)
-server <- function(input, output) { }
-
-shinyApp(ui, server)
+#ui <- shinyUI(
+#  fluidPage(
+#    includeMarkdown("SSDapp_tabset.md")
+#  )
+#)
+#server <- function(input, output) { }
+#
+#shinyApp(ui, server)
