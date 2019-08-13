@@ -11,7 +11,7 @@
 library(shiny)
 library(knitr)
 
-rmdfiles <- c("SSDapp_tabset.rmd")
+rmdfiles <- c("SSDapp_tabset.Rmd")
 sapply(rmdfiles, knit, quiet = T)
 
 ui <- shinyUI(
