@@ -1,0 +1,180 @@
+---
+title: "Species Sensitivity Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    source_code: embed
+vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+
+library(tidyverse)
+  
+```
+
+
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+```{r}
+
+sliderInput("samp",
+            "Sample Size:",
+            min = 5,
+            max = 50,
+            value = 10)
+sliderInput("mean",
+            "mean Log:",
+            min = 0.001,
+            max = 10,
+            value = 1)
+sliderInput("sd",
+            "sd Log:",
+            min = 0.001,
+            max = 10,
+            value = 0.1)
+
+
+```
+
+
+Column {.tabset} 
+-------------------------------------
+   
+### Species Sensitivity Distribution 
+
+```{r}
+
+
+renderPlot({
+  set.seed(101987)
+  n <- input$samp
+  ave <- input$mean
+  disp <- input$sd
+  
+  
+  data <- data.frame(stringsAsFactors=FALSE,
+                     NOEC=rlnorm(n,meanlog=ave,sdlog=disp),
+                     idnum=seq(1:n)
+  )
+  
+  
+  
+  data <- data[order(data$NOEC,decreasing=T), ]
+  
+  data$percorder <- 1+(1/n)-order(data$NOEC, decreasing=T)/max(data$idnum)
+  fitobj <- MASS::fitdistr(data$NOEC,densfun="lognormal")
+  meandist2 <- rnorm(100,mean=fitobj$estimate[1],sd=fitobj$sd[[1]])
+  sddist2 <- rnorm(100,mean=fitobj$estimate[[2]],sd=fitobj$sd[[2]])
+  probvec <- c(0.01,0.025,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,0.975,0.99)
+  dfbigtest <- expand.grid(mean=meandist2,sd=sddist2,prob=probvec)
+  dfbigtest$estimate <- qlnorm(dfbigtest$prob,meanlog=dfbigtest$mean,sdlog=dfbigtest$sd, lower.tail=T)
+  dfbig95 <- dfbigtest %>%
+    group_by(prob) %>%
+    summarise(medest = quantile(estimate, probs=0.5, na.rm=T, names=F),
+              lowCI = quantile(estimate, probs=0.025, na.rm=T, names=F),
+              highCI = quantile(estimate, probs=0.975, na.rm=T, names=F), 
+              maxest = max(estimate),
+              minest = min(estimate))
+  
+  plot(prob~medest, data=dfbig95, type="l", lty=2, lwd=2, log="x", xlim=c(min(dfbig95$minest),max(dfbig95$maxest)), xlab="NOEC",ylab="Percentile")
+  lines(prob~lowCI, data=dfbig95,lty=2, col="blue")
+  lines(prob~highCI, data=dfbig95,lty=2, col="blue")
+  lines(prob~maxest, data=dfbig95,lty=2, col="red")
+  lines(prob~minest, data=dfbig95,lty=2, col="red")
+  points(data$percorder~data$NOEC,pch=16,col="red")
+  segments(0.001,0.05,qlnorm(0.05,meanlog=fitobj$estimate[[1]],sdlog=fitobj$estimate[[2]],lower.tail=T),0.05)
+  segments(qlnorm(0.05,meanlog=fitobj$estimate[[1]],sdlog=fitobj$estimate[[2]],lower.tail=T),0,qlnorm(0.05,meanlog=fitobj$estimate[[1]],sdlog=fitobj$estimate[[2]],lower.tail=T),0.05)
+  
+})
+
+
+```   
+ 
+### Distribution of Estimates of HC5
+    
+```{r}
+
+renderPlot({
+  set.seed(101987)
+  n <- input$samp
+  ave <- input$mean
+  disp <- input$sd
+  
+  
+  data <- data.frame(stringsAsFactors=FALSE,
+                     NOEC=rlnorm(n,meanlog=ave,sdlog=disp),
+                     idnum=seq(1:n)
+  )
+  
+  
+  
+  data <- data[order(data$NOEC,decreasing=T), ]
+  
+  data$percorder <- 1+(1/n)-order(data$NOEC, decreasing=T)/max(data$idnum)
+  fitobj <- MASS::fitdistr(data$NOEC,densfun="lognormal")
+  meandist2 <- rnorm(100,mean=fitobj$estimate[1],sd=fitobj$sd[[1]])
+  sddist2 <- rnorm(100,mean=fitobj$estimate[[2]],sd=fitobj$sd[[2]])
+  probvec <- c(0.01,0.025,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,0.975,0.99)
+  dfbigtest <- expand.grid(mean=meandist2,sd=sddist2,prob=probvec)
+  dfbigtest$estimate <- qlnorm(dfbigtest$prob,meanlog=dfbigtest$mean,sdlog=dfbigtest$sd, lower.tail=T)
+  dfbig95 <- dfbigtest %>%
+    group_by(prob) %>%
+    summarise(medest = quantile(estimate, probs=0.5, na.rm=T, names=F),
+              lowCI = quantile(estimate, probs=0.025, na.rm=T, names=F),
+              highCI = quantile(estimate, probs=0.975, na.rm=T, names=F), 
+              maxest = max(estimate),
+              minest = min(estimate))
+  plot(density(dfbigtest$estimate[dfbigtest$prob==0.05]), main="")
+})
+
+```
+
+
+### Summary Statistics of SSD
+
+```{r}
+
+
+renderTable({
+  set.seed(101987)
+  n <- input$samp
+  ave <- input$mean
+  disp <- input$sd
+  
+  
+  data <- data.frame(stringsAsFactors=FALSE,
+                     NOEC=rlnorm(n,meanlog=ave,sdlog=disp),
+                     idnum=seq(1:n)
+  )
+  
+  
+  
+  data <- data[order(data$NOEC,decreasing=T), ]
+  
+  data$percorder <- 1+(1/n)-order(data$NOEC, decreasing=T)/max(data$idnum)
+  fitobj <- MASS::fitdistr(data$NOEC,densfun="lognormal")
+  meandist2 <- rnorm(100,mean=fitobj$estimate[1],sd=fitobj$sd[[1]])
+  sddist2 <- rnorm(100,mean=fitobj$estimate[[2]],sd=fitobj$sd[[2]])
+  probvec <- c(0.01,0.025,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,0.975,0.99)
+  dfbigtest <- expand.grid(mean=meandist2,sd=sddist2,prob=probvec)
+  dfbigtest$estimate <- qlnorm(dfbigtest$prob,meanlog=dfbigtest$mean,sdlog=dfbigtest$sd, lower.tail=T)
+  dfbig95 <- dfbigtest %>%
+    group_by(prob) %>%
+    summarise(medest = quantile(estimate, probs=0.5, na.rm=T, names=F),
+              lowCI = quantile(estimate, probs=0.025, na.rm=T, names=F),
+              highCI = quantile(estimate, probs=0.975, na.rm=T, names=F), 
+              maxest = max(estimate),
+              minest = min(estimate))
+  testtable <- dfbig95[dfbig95$prob==0.05,-1]
+  colnames(testtable) <- c("Median Estimate","Low CI", "High CI", "Maximum Estimate","Minumum Estimate")
+  head(round(testtable,3))
+})
+
+
+```
+
+
+
+
