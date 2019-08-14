@@ -206,9 +206,12 @@ simulate <- function(x) {
   #IQR(dfbigtest$estimate[dfbigtest$prob==0.05],  na.rm=T)
 }
 
-m <- matrix(data=NA, nrow=30, ncol=20)
-for (i in 2:30) {
-  for (j in 1:20) {
+nsamps <- 30
+nreps <- 100
+
+m <- matrix(data=NA, nrow=nsamps, ncol=nreps)
+for (i in 2:nsamps) {
+  for (j in 1:nreps) {
     m[i,j] <- Vectorize(simulate(i))
   }
 }
@@ -224,17 +227,30 @@ m <- gather(m, key=runnumber, value=value, -sampsize)
 m2 <- m %>%
   group_by(sampsize) %>%
   summarise(medianv = median(value, na.rm=T),
-            meanv = mean(value, na.rm=T)) %>%
+            meanv = mean(value, na.rm=T),
+            highCI = quantile(value, probs=0.975, na.rm=T, names=F),
+            lowCI = quantile(value, probs=0.025, na.rm=T, names=F)) %>%
   arrange(sampsize)
 
 
 
 lmmean <- lm(meanv~sampsize, data=m2)
 segmean <- segmented(lmmean)
+lmmedian <- lm(medianv~sampsize, data=m2)
+segmedian <- segmented(lmmedian)
+m2$predict <- c("NA",predict(segmean))
+m2$predictmed <- c("NA",predict(segmedian))
 
-plot(segmean, ylim=c(0,max(m2$meanv, na.rm=T)))
-plot(segall, col="red", add=T)
-points(meanv~sampsize, data=m2)
+plot(medianv~sampsize, data=m2, pch=16, log="y", ylim=c(0.01,200))
+points(highCI~sampsize, data=m2, type="l", lty=2)
+points(lowCI~sampsize, data=m2, type="l", lty=2)
+points(predictmed~sampsize, data=m2, type="l", lty=2, col="red")
+
+
+plot(medianv~sampsize, data=m2, pch=16, log="", ylim=c(0,3))
+points(highCI~sampsize, data=m2, type="l", lty=2)
+points(lowCI~sampsize, data=m2, type="l", lty=2)
+points(predictmed~sampsize, data=m2, type="l", lty=2, col="red")
 
 
 
