@@ -45,11 +45,16 @@ simulate <- function(x) {
 
 simulate(15)
 simulate(17)
+simulate(15:17)
+
+sim2 <- Vectorize(simulate)
+sim2(15)
+sim2(15:17)
 
 testdf <- data.frame(nsize=c(2:1000))
-testdf$CIratio <- sapply(testdf$nsize,simulate)
+testdf$CIratio <- sim2(testdf$nsize)#sapply(testdf$nsize,simulate)
 
-plot(CIratio~nsize, data=testdf, log="x", xlim=c(2,1000), ylim=c(min(testdf$CIratio, na.rm=T),max(testdf$CIratio, na.rm=T)))
+plot(CIratio~nsize, data=testdf, log="xy", xlim=c(2,100), ylim=c(min(testdf$CIratio, na.rm=T),max(testdf$CIratio, na.rm=T)))
 
 drm1 <- drm(CIratio~nsize, data=testdf, fct=LL.2())
 plot(drm1)
