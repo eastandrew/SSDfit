@@ -37,10 +37,11 @@ simulate <- function(x) {
   probvec <- c(0.01,0.025,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,0.975,0.99)
   dfbigtest <- expand.grid(mean=meandist2,sd=sddist2,prob=probvec)
   dfbigtest$estimate <- qlnorm(dfbigtest$prob,meanlog=dfbigtest$mean,sdlog=dfbigtest$sd, lower.tail=T)
-  quantile(dfbigtest$estimate[dfbigtest$prob==0.05], probs=0.05, na.rm=T, names=F)/median(dfbigtest$estimate[dfbigtest$prob==0.05])
+  #quantile(dfbigtest$estimate[dfbigtest$prob==0.05], probs=0.05, na.rm=T, names=F)/median(dfbigtest$estimate[dfbigtest$prob==0.05])
   #quantile(dfbigtest$estimate[dfbigtest$prob==0.05], probs=0.05, na.rm=T, names=F)
   #median(dfbigtest$estimate[dfbigtest$prob==0.05])
   #sd(dfbigtest$estimate[dfbigtest$prob==0.05], na.rm=T)/median(dfbigtest$estimate[dfbigtest$prob==0.05],na.rm=T)
+  IQR(dfbigtest$estimate[dfbigtest$prob==0.05],  na.rm=T)
 }
 
 simulate(15)
