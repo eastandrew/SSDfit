@@ -176,5 +176,72 @@ renderTable({
 ```
 
 
+### Effect of sample size on median estimate  (20 replicates for speed)
 
+```{r}
+renderPlot({
+simulate <- function(x) {
+  n <- x
+  ave <- 3.9094433
+  disp <- 2.5785167
+  
+  data <- data.frame(stringsAsFactors=FALSE,
+                     NOEC=rlnorm(n,meanlog=ave,sdlog=disp),
+                     idnum=seq(1:n)
+  )
+  
+  data <- data[order(data$NOEC,decreasing=T), ]
+  
+  data$percorder <- 1+(1/n)-order(data$NOEC, decreasing=T)/max(data$idnum)
+  fitobj <- MASS::fitdistr(data$NOEC,densfun="lognormal")
+  meandist2 <- rnorm(100,mean=fitobj$estimate[1],sd=fitobj$sd[[1]])
+  sddist2 <- rnorm(100,mean=fitobj$estimate[[2]],sd=fitobj$sd[[2]])
+  probvec <- c(0.01,0.025,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,0.975,0.99)
+  dfbigtest <- expand.grid(mean=meandist2,sd=sddist2,prob=probvec)
+  dfbigtest$estimate <- qlnorm(dfbigtest$prob,meanlog=dfbigtest$mean,sdlog=dfbigtest$sd, lower.tail=T)
+  #quantile(dfbigtest$estimate[dfbigtest$prob==0.05], probs=0.05, na.rm=T, names=F)/median(dfbigtest$estimate[dfbigtest$prob==0.05])
+  #quantile(dfbigtest$estimate[dfbigtest$prob==0.05], probs=0.05, na.rm=T, names=F)
+  median(dfbigtest$estimate[dfbigtest$prob==0.05])
+  #sd(dfbigtest$estimate[dfbigtest$prob==0.05], na.rm=T)/median(dfbigtest$estimate[dfbigtest$prob==0.05],na.rm=T)
+  #IQR(dfbigtest$estimate[dfbigtest$prob==0.05],  na.rm=T)
+}
+
+m <- matrix(data=NA, nrow=30, ncol=20)
+for (i in 2:30) {
+  for (j in 1:100) {
+    m[i,j] <- Vectorize(simulate(i))
+  }
+}
+
+rownames(m) <- 1:30
+
+m <- data.frame(m)
+
+m$sampsize <- as.numeric(rownames(m))
+
+m <- gather(m, key=runnumber, value=value, -sampsize)
+
+m2 <- m %>%
+  group_by(sampsize) %>%
+  summarise(medianv = median(value, na.rm=T),
+            meanv = mean(value, na.rm=T)) %>%
+  arrange(sampsize)
+
+
+
+lmmean <- lm(meanv~sampsize, data=m2)
+segmean <- segmented(lmmean)
+
+plot(segmean, ylim=c(0,max(m2$meanv, na.rm=T)))
+plot(segall, col="red", add=T)
+points(meanv~sampsize, data=m2)
+
+
+
+
+})
+
+
+
+```
 
