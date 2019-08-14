@@ -121,3 +121,30 @@ plot(meanv~sampsize, data=m2,  log="", xlim=c(0,30),ylim=c(0,15))
 points(predict~sampsize, data=m2, type="l")
 curve(mobj2$coefficients[1,1]+max(m2$meanv, na.rm=T)*exp(-mobj2$coefficients[2,1]*x), from=2, to=100, n=99, add=T)
 
+
+
+lmall <- lm(value~sampsize, data=m)
+library(segmented)
+segall <- segmented(lmall)
+plot(segall)
+summary(segall)
+plot(segall, ylim=c(0,max(m2$meanv, na.rm=T)))
+points(meanv~sampsize, data=m2)
+
+plot(segall, ylim=c(0,max(m$value, na.rm=T)), lwd=6, col="red")
+points(value~sampsize, data=m)
+
+lmmean <- lm(meanv~sampsize, data=m2)
+segmean <- segmented(lmmean)
+plot(segmean)
+summary(segmean)
+plot(segmean, ylim=c(0,max(m2$meanv, na.rm=T)))
+plot(segall, col="red", add=T)
+points(meanv~sampsize, data=m2)
+plot(segmean$residuals~m2$sampsize[-1])
+abline(h=0)
+
+
+
+
+
