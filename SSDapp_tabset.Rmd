@@ -208,7 +208,7 @@ simulate <- function(x) {
 
 m <- matrix(data=NA, nrow=30, ncol=20)
 for (i in 2:30) {
-  for (j in 1:100) {
+  for (j in 1:20) {
     m[i,j] <- Vectorize(simulate(i))
   }
 }
