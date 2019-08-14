@@ -17,7 +17,7 @@ probvec <- c(0.01,0.025,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,0.975,0.99
 dfbigtest <- expand.grid(mean=meandist2,sd=sddist2,prob=probvec)
 dfbigtest$estimate <- qlnorm(dfbigtest$prob,meanlog=dfbigtest$mean,sdlog=dfbigtest$sd, lower.tail=T)
 
-library(drc)
+
 simulate <- function(x) {
   n <- x
   ave <- 3.9094433
@@ -57,8 +57,67 @@ testdf$CIratio <- sim2(testdf$nsize)#sapply(testdf$nsize,simulate)
 
 plot(CIratio~nsize, data=testdf, log="xy", xlim=c(2,100), ylim=c(min(testdf$CIratio, na.rm=T),max(testdf$CIratio, na.rm=T)))
 
-drm1 <- drm(CIratio~nsize, data=testdf, fct=LL.2())
-plot(drm1)
-plot(drm1, type="bars")
-mselect(drm1, list(LL.4(),W1.4(),W2.4()))
-ED(drm1, 0.5, type="absolute",interval="delta")
+m <- matrix(data=NA, nrow=100, ncol=10)
+for (i in 2:100) {
+  for (j in 1:10) {
+    m[i,j] <- Vectorize(simulate(i))
+  }
+}
+m
+rownames(m) <- 1:100
+m
+m <- data.frame(m)
+m
+m$sampsize <- as.numeric(rownames(m))
+m
+m <- gather(m, key=runnumber, value=value, -sampsize)
+m
+plot(value~sampsize, data=m, log="xy")
+m2 <- m %>%
+  group_by(sampsize) %>%
+  summarise(medianv = median(value, na.rm=T),
+            meanv = mean(value, na.rm=T)) %>%
+  arrange(sampsize)
+m2
+plot(meanv~sampsize, data=m2, type="b", log="")
+plot(density(m$value[m$sampsize==10]))
+
+mfit <- nls(value~b+max(value,na.rm=T)*exp(-a*sampsize), data=m, start=list(a=1,b=1))
+mfit
+mobj <- summary(mfit)
+mobj$coefficients[1,1]
+mobj$coefficients[2,1]
+m$predict <- mobj$coefficients[1,1]+max(m$value, na.rm=T)*exp(-mobj$coefficients[2,1]*m$sampsize)
+head(m, 20)
+
+
+mfit2 <- nls(meanv~b+max(meanv,na.rm=T)*exp(-a*sampsize), data=m2, start=list(a=1, b=1))
+mfit2
+mobj2 <- summary(mfit2)
+mobj2$coefficients[1,1]
+mobj2$coefficients[2,1]
+m2$predict <- mobj2$coefficients[1,1]+max(m2$meanv, na.rm=T)*exp(-0.284*m2$sampsize)
+#m2$predict2 <- predict(mfit2, sampesize=m2$sampsize)
+head(m2, 20)
+
+
+
+
+
+plot(value~sampsize, data=m, log="", xlim=c(1,100), ylim=c(0.1,20))
+curve(mobj$coefficients[1,1]+max(m$value, na.rm=T)*exp(-mobj$coefficients[2,1]*x), from=2, to=100, n=99, add=T)
+points(predict~sampsize, data=m, type="l")
+
+plot(value~sampsize, data=m, log="y")
+curve(mobj$coefficients[1,1]+max(m$value, na.rm=T)*exp(-mobj$coefficients[2,1]*x), from=2, to=100, n=99, add=T)
+points(predict~sampsize, data=m, type="l")
+
+
+plot(meanv~sampsize, data=m2,  log="")
+points(predict~sampsize, data=m2, type="l")
+curve(mobj2$coefficients[1,1]+max(m$value, na.rm=T)*exp(-mobj2$coefficients[2,1]*x), from=2, to=100, n=99, add=T)
+
+plot(meanv~sampsize, data=m2,  log="", xlim=c(0,30),ylim=c(0,15))
+points(predict~sampsize, data=m2, type="l")
+curve(mobj2$coefficients[1,1]+max(m2$meanv, na.rm=T)*exp(-mobj2$coefficients[2,1]*x), from=2, to=100, n=99, add=T)
+
