@@ -216,12 +216,9 @@ sampmax <- 30
 nreps <- 10
 minsamp <- 5
 
-m <- matrix(data=NA, nrow=sampmax, ncol=nreps)
-for (i in minsamp:sampmax) {
-  for (j in 1:nreps) {
-    m[i,j] <- simulate(i)
-  }
-}
+m <- matrix(data=1:30, nrow=sampmax, ncol=nreps)
+
+m <- matrix(sapply(m,simulate),nrow=sampmax,ncol=nreps)
 
 m <- m[-(1:(minsamp-1)),]
 
