@@ -220,7 +220,7 @@ simulate <- function(x) {
 
 
 sampmax <- 30
-nreps <- 1000
+nreps <- 100
 minsamp <- 4
 
 m <- matrix(data=1:30, nrow=sampmax, ncol=nreps)
@@ -261,10 +261,15 @@ m2 <- m %>%
 #points(lowCI~sampsize, data=m2, type="l", lty=2)
 #points(predictmed~sampsize, data=m2, type="l", lty=2, col="red")
 
-plot(medianv~sampsize, data=m2, pch=16, ylim=c(0,max(m2$meanv)))
-points(meanv~sampsize, data=m2, pch=3)
-points(loess.smooth(m2$sampsize,m2$medianv)$x,loess.smooth(m2$sampsize,m2$medianv)$y, type="l", col="blue")
-points(loess.smooth(m2$sampsize,m2$meanv)$x,loess.smooth(m2$sampsize,m2$meanv)$y, type="l", col="red")
+#plot(medianv~sampsize, data=m2, pch=16, ylim=c(0,max(m2$meanv)))
+#points(meanv~sampsize, data=m2, pch=3)
+#points(loess.smooth(m2$sampsize,m2$medianv)$x,loess.smooth(m2$sampsize,m2$medianv)$y, type="l", col="blue")
+#points(loess.smooth(m2$sampsize,m2$meanv)$x,loess.smooth(m2$sampsize,m2$meanv)$y, type="l", col="red")
+#points(highCI~sampsize, data=m2, type="l", lty=2)
+#points(lowCI~sampsize, data=m2, type="l", lty=2)
+
+plot(medianv~sampsize, data=m2, type="l", ylim=c(0.01,max(m2$highCI)), log="y", ylab="Estimated HC5", xlab="Sample Size", col="blue")
+points(meanv~sampsize, data=m2, type="l", col="red")
 points(highCI~sampsize, data=m2, type="l", lty=2)
 points(lowCI~sampsize, data=m2, type="l", lty=2)
 
