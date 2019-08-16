@@ -209,7 +209,7 @@ simulate <- function(x) {
 }
 
 nsamps <- 30
-nreps <- 100
+nreps <- 20
 
 m <- matrix(data=NA, nrow=nsamps, ncol=nreps)
 for (i in 2:nsamps) {
@@ -247,13 +247,6 @@ plot(medianv~sampsize, data=m2, pch=16, log="y", ylim=c(0.01,200))
 points(highCI~sampsize, data=m2, type="l", lty=2)
 points(lowCI~sampsize, data=m2, type="l", lty=2)
 points(predictmed~sampsize, data=m2, type="l", lty=2, col="red")
-
-
-plot(medianv~sampsize, data=m2, pch=16, log="", ylim=c(0,3))
-points(highCI~sampsize, data=m2, type="l", lty=2)
-points(lowCI~sampsize, data=m2, type="l", lty=2)
-points(predictmed~sampsize, data=m2, type="l", lty=2, col="red")
-
 
 
 
