@@ -180,7 +180,7 @@ renderTable({
 
 ### Effect of sample size on median estimate  (20 replicates for speed)
 
-```{r, warning=FALSE}
+```{r}
 renderPlot({
 simulate <- function(x) {
   n <- x
