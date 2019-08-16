@@ -219,7 +219,7 @@ minsamp <- 5
 m <- matrix(data=NA, nrow=sampmax, ncol=nreps)
 for (i in minsamp:sampmax) {
   for (j in 1:nreps) {
-    m[i,j] <- Vectorize(simulate(i))
+    m[i,j] <- simulate(i)
   }
 }
 
