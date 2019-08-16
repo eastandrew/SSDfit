@@ -245,12 +245,12 @@ m2 <- m %>%
 
 
 
-lmmean <- lm(meanv~sampsize, data=m2)
-segmean <- segmented(lmmean)
-lmmedian <- lm(medianv~sampsize, data=m2)
-segmedian <- segmented(lmmedian)
-m2$predict <- c(predict(segmean))
-m2$predictmed <- c(predict(segmedian))
+#lmmean <- lm(meanv~sampsize, data=m2)
+#segmean <- segmented(lmmean)
+#lmmedian <- lm(medianv~sampsize, data=m2)
+#segmedian <- segmented(lmmedian)
+#m2$predict <- c(predict(segmean))
+#m2$predictmed <- c(predict(segmedian))
 
 #plot(medianv~sampsize, data=m2, pch=16, log="y", ylim=c(0.01,200))
 #points(highCI~sampsize, data=m2, type="l", lty=2)
