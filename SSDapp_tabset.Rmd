@@ -200,7 +200,10 @@ simulate <- function(x) {
   sddist2 <- rnorm(100,mean=fitobj$estimate[[2]],sd=fitobj$sd[[2]])
   probvec <- c(0.01,0.025,0.05,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95,0.975,0.99)
   dfbigtest <- expand.grid(mean=meandist2,sd=sddist2,prob=probvec)
+  
   dfbigtest$estimate <- qlnorm(dfbigtest$prob,meanlog=dfbigtest$mean,sdlog=dfbigtest$sd, lower.tail=T)
+  
+  
   #quantile(dfbigtest$estimate[dfbigtest$prob==0.05], probs=0.05, na.rm=T, names=F)/median(dfbigtest$estimate[dfbigtest$prob==0.05])
   #quantile(dfbigtest$estimate[dfbigtest$prob==0.05], probs=0.05, na.rm=T, names=F)
   median(dfbigtest$estimate[dfbigtest$prob==0.05])
@@ -208,17 +211,23 @@ simulate <- function(x) {
   #IQR(dfbigtest$estimate[dfbigtest$prob==0.05],  na.rm=T)
 }
 
-nsamps <- 30
-nreps <- 20
 
-m <- matrix(data=NA, nrow=nsamps, ncol=nreps)
-for (i in 2:nsamps) {
+sampmax <- 30
+nreps <- 10
+minsamp <- 5
+
+m <- matrix(data=NA, nrow=sampmax, ncol=nreps)
+for (i in minsamp:sampmax) {
   for (j in 1:nreps) {
     m[i,j] <- Vectorize(simulate(i))
   }
 }
 
-rownames(m) <- 1:30
+m <- m[-(1:(minsamp-1)),]
+
+
+rownames(m) <- minsamp:sampmax
+
 
 m <- data.frame(m)
 
@@ -240,8 +249,8 @@ lmmean <- lm(meanv~sampsize, data=m2)
 segmean <- segmented(lmmean)
 lmmedian <- lm(medianv~sampsize, data=m2)
 segmedian <- segmented(lmmedian)
-m2$predict <- c("NA",predict(segmean))
-m2$predictmed <- c("NA",predict(segmedian))
+m2$predict <- c(predict(segmean))
+m2$predictmed <- c(predict(segmedian))
 
 plot(medianv~sampsize, data=m2, pch=16, log="y", ylim=c(0.01,200))
 points(highCI~sampsize, data=m2, type="l", lty=2)
@@ -251,6 +260,7 @@ points(predictmed~sampsize, data=m2, type="l", lty=2, col="red")
 
 
 })
+
 
 
 
