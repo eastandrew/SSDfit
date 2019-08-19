@@ -221,7 +221,7 @@ simulate <- function(x) {
 
 sampmax <- 30
 nreps <- 100
-minsamp <- 4
+minsamp <- 5
 
 m <- matrix(data=1:30, nrow=sampmax, ncol=nreps)
 
