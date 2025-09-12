@@ -42,7 +42,7 @@ ui <- fluidPage(
             br(),
             br(),
             p("Written by A. East"),
-            p(a("GitHub",href="https://github.com/eastandrew/SWPB"))
+            p(a("GitHub",href="https://github.com/eastandrew/SSDfit"))
             
         ),
         
@@ -217,4 +217,5 @@ server <- function(input, output) {
 
 # Create Shiny app ----
 shinyApp(ui, server)
+
 
